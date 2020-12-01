@@ -4,19 +4,12 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { exec } from 'child_process'
 
-// yargs.option("a", {
-// 	default: 1
-// })
+yargs.usage("mkts [name] [options...]")
 
-// yargs.option("b", {
-// 	default: "b"
-// })
-
-// yargs.option("c", {
-// 	default: "c"
-// })
-
-// console.log(yargs.argv)
+yargs.option("git", {
+	default: false,
+	boolean: true
+})
 
 interface IProjectConfig {
 	name: string
@@ -42,7 +35,7 @@ const initPackageJson = ({ name, destination }: IProjectConfig) => {
 		"version": "0.1.0",
 		"main": "./dist/index.js",
 		"scripts": {
-			"build:watch": "tsc --watch",
+			"watch": "tsc --watch",
 			"build": "tsc",
 			"start": "node ./dist/index.js",
 			"prettify": "prettier --config .prettierrc.js --ignore-path .prettierignore --write ./src/**/*.{ts,tsx,js,jsx,json}"
@@ -141,6 +134,12 @@ const tsConfig = ({ destination }: IProjectConfig) => {
 (async () => {
 
 	const name = yargs.argv._[0]
+
+	if (!name) {
+		yargs.showHelp()
+		process.exit()
+	}
+
 	const destination = initProjectDir(name)
 
 	const config: IProjectConfig = {
@@ -162,7 +161,10 @@ const tsConfig = ({ destination }: IProjectConfig) => {
 	prettierConfig(config)
 	fs.writeFileSync(path.join(destination, "README.md"), `# ${name}`)
 
-	await gitInit(config)
+
+	if (yargs.argv.git) {
+		await gitInit(config)
+	}
 	tsConfig(config)
 
 })().catch(console.error)

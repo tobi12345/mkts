@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"build:watch": "tsc --watch",
+		"watch": "tsc --watch",
 		"build": "tsc",
 		"start": "node ./dist/index.js",
 		"prettify": "prettier --config .prettierrc.js --ignore-path .prettierignore --write ./src/**/*.{ts,tsx,js,jsx,json}"
@@ -12,6 +12,9 @@
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
+	"bin": {
+		"mkts": "./dist/index.js"
+	},
 	"dependencies": {
 		"@types/yargs": "^15.0.5",
 		"prettier": "^2.1.0",
