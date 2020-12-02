@@ -11,6 +11,12 @@ yargs.option("git", {
 	boolean: true,
 })
 
+yargs.option("cc", {
+	default: false,
+	boolean: true,
+	description: "init coding challenge template"
+})
+
 interface IProjectConfig {
 	name: string
 	destination: string
@@ -20,7 +26,7 @@ const initProjectDir = (name: string) => {
 	const dirPath = path.join(process.cwd(), name)
 	if (fs.existsSync(dirPath)) {
 		console.error(`${dirPath} allready exists`)
-		process.exit(1)
+		process.exit(0)
 	}
 	fs.mkdirSync(dirPath)
 
@@ -119,6 +125,7 @@ const tsConfig = ({ destination }: IProjectConfig) => {
 			rootDir: "src",
 			outDir: "dist",
 			declaration: true,
+			sourceMap: true
 		},
 		files: ["./src/index.ts"],
 		compileOnSave: true,
@@ -127,7 +134,52 @@ const tsConfig = ({ destination }: IProjectConfig) => {
 	fs.writeFileSync(path.join(destination, "tsconfig.json"), JSON.stringify(config, null, "\t"))
 }
 
+const initCodingChallengeTemplate = ({ destination }: IProjectConfig)=>{
+	const template = 
+`import * as fs from 'fs'
+import * as path from 'path'
+
+const input = fs.readFileSync(path.join(__dirname, '..','testcases', 'input.txt')).toString()
+`
+	const srcDir = path.join(destination, "src")
+	const testDir = path.join(destination, "testcases")
+	fs.writeFileSync(path.join(srcDir, "index.ts"),template)
+	fs.mkdirSync(testDir)
+	fs.writeFileSync(path.join(testDir, "input.txt"),"")
+}
+
+const initVSCodeLaunch = ({ destination }: IProjectConfig)=>{
+	const template = 
+`{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "node",
+			"request": "launch",
+			"name": "Launch Program",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"program": "\${workspaceFolder}/dist/index.js",
+			"preLaunchTask": "tsc: build - tsconfig.json",
+			"outFiles": [
+				"\${workspaceFolder}/dist/**/*.js"
+			]
+		}
+	]
+}
+`
+	const vscodeDir = path.join(destination, ".vscode")
+	fs.mkdirSync(vscodeDir)
+	fs.writeFileSync(path.join(vscodeDir, "launch.json"),template)
+}
+
 ;(async () => {
+	console.log(yargs.argv)
+
 	const name = yargs.argv._[0]
 
 	if (!name) {
@@ -156,8 +208,14 @@ const tsConfig = ({ destination }: IProjectConfig) => {
 	prettierConfig(config)
 	fs.writeFileSync(path.join(destination, "README.md"), `# ${name}`)
 
+	initVSCodeLaunch(config)
 	if (yargs.argv.git) {
 		await gitInit(config)
 	}
+
+	if (yargs.argv.cc) {
+		initCodingChallengeTemplate(config)
+	}
+
 	tsConfig(config)
 })().catch(console.error)
