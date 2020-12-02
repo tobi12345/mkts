@@ -178,8 +178,6 @@ const initVSCodeLaunch = ({ destination }: IProjectConfig)=>{
 }
 
 ;(async () => {
-	console.log(yargs.argv)
-
 	const name = yargs.argv._[0]
 
 	if (!name) {
