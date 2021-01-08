@@ -1,8 +1,6 @@
 {
 	"compilerOptions": {
-		"lib": [
-			"esnext"
-		],
+		"lib": ["esnext"],
 		"target": "esnext",
 		"module": "CommonJS",
 		"moduleResolution": "node",
@@ -12,8 +10,6 @@
 		"declaration": true,
 		"sourceMap": true
 	},
-	"files": [
-		"./src/index.ts"
-	],
+	"include": ["./src"],
 	"compileOnSave": true
 }

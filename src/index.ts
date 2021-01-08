@@ -14,7 +14,7 @@ yargs.option("git", {
 yargs.option("cc", {
 	default: false,
 	boolean: true,
-	description: "init coding challenge template"
+	description: "init coding challenge template",
 })
 
 interface IProjectConfig {
@@ -53,7 +53,7 @@ const initPackageJson = ({ name, destination }: IProjectConfig) => {
 const installNpmPackage = (destination: string, isDev: boolean) => (name: string) => {
 	const args = ["npm", "install", isDev ? "--save-dev" : "--save", name]
 
-	return new Promise((resolve, reject) => {
+	return new Promise<void>((resolve, reject) => {
 		exec(
 			args.join(" "),
 			{
@@ -96,7 +96,7 @@ const prettierConfig = ({ destination }: IProjectConfig) => {
 const gitInit = ({ destination }: IProjectConfig) => {
 	fs.writeFileSync(path.join(destination, ".gitignore"), `node_modules\ndist`)
 
-	return new Promise((resolve, reject) => {
+	return new Promise<void>((resolve, reject) => {
 		exec(
 			"git init",
 			{
@@ -125,32 +125,30 @@ const tsConfig = ({ destination }: IProjectConfig) => {
 			rootDir: "src",
 			outDir: "dist",
 			declaration: true,
-			sourceMap: true
+			sourceMap: true,
 		},
-		files: ["./src/index.ts"],
+		include: ["./src"],
 		compileOnSave: true,
 	}
 
 	fs.writeFileSync(path.join(destination, "tsconfig.json"), JSON.stringify(config, null, "\t"))
 }
 
-const initCodingChallengeTemplate = ({ destination }: IProjectConfig)=>{
-	const template = 
-`import * as fs from 'fs'
+const initCodingChallengeTemplate = ({ destination }: IProjectConfig) => {
+	const template = `import * as fs from 'fs'
 import * as path from 'path'
 
 const input = fs.readFileSync(path.join(__dirname, '..','testcases', 'input.txt')).toString()
 `
 	const srcDir = path.join(destination, "src")
 	const testDir = path.join(destination, "testcases")
-	fs.writeFileSync(path.join(srcDir, "index.ts"),template)
+	fs.writeFileSync(path.join(srcDir, "index.ts"), template)
 	fs.mkdirSync(testDir)
-	fs.writeFileSync(path.join(testDir, "input.txt"),"")
+	fs.writeFileSync(path.join(testDir, "input.txt"), "")
 }
 
-const initVSCodeLaunch = ({ destination }: IProjectConfig)=>{
-	const template = 
-`{
+const initVSCodeLaunch = ({ destination }: IProjectConfig) => {
+	const template = `{
 	// Use IntelliSense to learn about possible attributes.
 	// Hover to view descriptions of existing attributes.
 	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
@@ -174,7 +172,7 @@ const initVSCodeLaunch = ({ destination }: IProjectConfig)=>{
 `
 	const vscodeDir = path.join(destination, ".vscode")
 	fs.mkdirSync(vscodeDir)
-	fs.writeFileSync(path.join(vscodeDir, "launch.json"),template)
+	fs.writeFileSync(path.join(vscodeDir, "launch.json"), template)
 }
 
 ;(async () => {
