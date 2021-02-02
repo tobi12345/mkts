@@ -50,7 +50,7 @@ const initPackageJson = ({ name, destination }: IProjectConfig) => {
 	fs.writeFileSync(path.join(destination, "package.json"), JSON.stringify(packageJson, null, "\t"))
 }
 
-const installNpmPackage = (destination: string, isDev: boolean) => (name: string) => {
+const installNpmPackage = (destination: string, isDev: boolean = false) => (name: string) => {
 	const args = ["npm", "install", isDev ? "--save-dev" : "--save", name]
 
 	return new Promise<void>((resolve, reject) => {
@@ -64,7 +64,6 @@ const installNpmPackage = (destination: string, isDev: boolean) => (name: string
 					console.error(`Error installing ${name}`)
 					return reject(err)
 				}
-
 				resolve()
 			},
 		)
@@ -192,13 +191,17 @@ const initVSCodeLaunch = ({ destination }: IProjectConfig) => {
 
 	initPackageJson(config)
 
-	const dependencies = ["typescript", ""]
+	const dependencies = ["typescript"]
 	const devDependencies = ["prettier", "@types/node"]
 
-	await Promise.all([
-		...dependencies.map(installNpmPackage(destination, false)),
-		...devDependencies.map(installNpmPackage(destination, true)),
-	])
+	const install = installNpmPackage(destination)
+	for (const dependency of dependencies) {
+		await install(dependency)
+	}
+	const installDev = installNpmPackage(destination, true)
+	for (const dependency of devDependencies) {
+		await installDev(dependency)
+	}
 
 	initSrcDir(config)
 	prettierConfig(config)
