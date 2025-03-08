@@ -17,6 +17,12 @@ yargs.option("cc", {
 	description: "init coding challenge template",
 })
 
+yargs.option("template", {
+	default: "",
+	choices: ["d", "default", "fs", "full-stack", "cc", "coding-challenge"],
+	description: "init coding challenge template",
+})
+
 interface IProjectConfig {
 	name: string
 	destination: string
